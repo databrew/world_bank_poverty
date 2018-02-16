@@ -40,24 +40,30 @@ body <- dashboardBody(
         h3('Welcome!'),
         fluidRow(
           column(12,
-                 p(paste0("Thank you for taking the time to look at the R Shiny app I created for the World Bank Programming Exercise. For the sake of time and general efficiency of the app, I took the liberty of making a few assumptions - and adjustments to the data - outlined below:")),
-                 HTML("<ul>
-<li>I was formally trained in Economics and during both undergrand and graduate school I used Stata often for research. However, I do not have a license anymore and therefore did not include a Stata log file. But I was able to translate the stata code into an R program, and ultimately, accomplish the task.</li>
- 
-<li>There is an additional tab, 'Extra', that examines the poverty incidence curve, the contributions to inequality, and a map the headcount poverty ratio by province (overlayed on real provinces)</li>
+                 HTML("Thank you for taking the time to look at the R Shiny app I created for the World Bank Programming Exercise. The code repository on github is available <a href=https://github.com/databrew/world_bank_poverty>here</a>. For the sake of time and general efficiency of the app, I took the liberty of making a few assumptions - and adjustments to the data - outlined below:
 
-<li> For practical purposes, I transformed the data from 'wide format' to 'long format'. This way the number of columns and their names are independent of variables. </li>
-
-<li> Instead of analyzing the data at the different poverty lines {3000, 2000, 5500} (discrete), I created an input that allows the user to analyze all possible poverty lines, with corresponding plots and tables that react to the chosen input. In addition, the user can look at regions seperately or n aggregate. </li>
-
-<li>It was not clear to me from the instructions what each element of this database pertains to. For the purposes of this exercise, I am assuming that an observation is a place (town, municipality, etc.), and that each income variable refers to an individual person - Essentially, I'm assuming that there are 30,000 places and 200 people per place.</li>
-
-<li> https://github.com/databrew/world_bank_poverty - put in href</li>
-
-                     </ul>")
+<ul>
+  <li>I was formally trained in Economics and during both undergrand and graduate school I used Stata often for research. However, I do not have a license anymore and therefore did not include a Stata log file. But I was able to translate the stata code into an R program, and ultimately, accomplish the task.
+  </li>
+   
+  <li>There is an additional tab, 'Extra', that examines the poverty incidence curve, the contributions to inequality, and a map the headcount poverty ratio by province (overlayed on real provinces)
+  </li>
+  
+  <li> For practical purposes, I transformed the data from 'wide format' to 'long format'. This way the number of columns and their names are independent of variables. 
+  </li>
+  
+  <li> Instead of analyzing the data at the different poverty lines {3000, 2000, 5500} (discrete), I created an input that allows the user to analyze all possible poverty lines, with corresponding plots and tables that react to the chosen input. In addition, the user can look at regions seperately or n aggregate. 
+  </li>
+  
+  <li>It was not clear to me from the instructions what each element of this database pertains to. For the purposes of this exercise, I am assuming that an observation is a place (town, municipality, etc.), and that each income variable refers to an individual person - Essentially, I'm assuming that there are 30,000 places and 200 people per place.
+  </li>
+</ul>")
           )
                  ),
-        br(), br()
+        fluidRow(
+          br(), br(), br(), br(),
+          div(img(src='wb_logo.png', align = "left", width = '200'), style="text-align: left; margin-left:10px;")
+        )
           )
         ),
     tabItem(
@@ -123,17 +129,22 @@ body <- dashboardBody(
       tabName = 'about',
       fluidPage(
         fluidRow(
-          div(img(src='logo_clear.png', align = "center"), style="text-align: center;"),
-          h4('Built by Ben Brew ',
-             a(href = 'http://databrew.cc',
-               target='_blank', '(Databrew Inc.)'),
-             align = 'center'),
-          p('Empowering research and analysis through collaborative data science.', align = 'center'),
-          div(a(actionButton(inputId = "email", label = "info@databrew.cc", 
-                             icon = icon("envelope", lib = "font-awesome")),
-                href="mailto:ben@databrew.cc",
-                align = 'center')), 
-          style = 'text-align:center;'
+          column(12,
+                 HTML('<a href=https://databrew.cc> Ben Brew </a>'),
+                 p('Empowering research and analysis through collaborative data science.', align = 'center'),
+                 div(a(actionButton(inputId = "email", label = "info@databrew.cc", 
+                                    icon = icon("envelope", lib = "font-awesome")),
+                       href="mailto:ben@databrew.cc",
+                       align = 'center')), 
+                 style = 'text-align:center;'
+                 )
+          
+        ),
+        br(),br(),br(),
+        fluidRow(
+          column(12,
+                 HTML('<a href=https://databrew.cc> Ben Brew </a>')
+                 )
         )
       )
     )
