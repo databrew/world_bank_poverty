@@ -1,2 +1,2 @@
-# world_bank_poverty
-Assignment for world bank shiny app developer position
+# Databrew's dashboard template
+A basic shiny dashboard on which to build cool things.

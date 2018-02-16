@@ -1,0 +1,12 @@
+name: poverty
+title: poverty
+username:
+account: benmbrew
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 282972
+bundleId: 1226288
+url: https://benmbrew.shinyapps.io/poverty/
+when: 1518793831.2053
+asMultiple: FALSE
+asStatic: FALSE
