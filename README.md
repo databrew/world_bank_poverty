@@ -1,2 +1,2 @@
-# Databrew's dashboard template
-A basic shiny dashboard on which to build cool things.
+
+A shiny dashboard for the World Bank's R shiny developer position.

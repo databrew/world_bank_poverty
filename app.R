@@ -46,9 +46,14 @@ body <- dashboardBody(
  
 <li>There is an additional tab, 'Extra', that examines the poverty incidence curve, the contributions to inequality, and a map the headcount poverty ratio by province (overlayed on real provinces)</li>
 
-<li>For practical purposes, I </li>
+<li> For practical purposes, I transformed the data from 'wide format' to 'long format'. This way the number of columns and their names are independent of variables. </li>
+
+<li> Instead of analyzing the data at the different poverty lines {3000, 2000, 5500} (discrete), I created an input that allows the user to analyze all possible poverty lines, with corresponding plots and tables that react to the chosen input. In addition, the user can look at regions seperately or n aggregate. </li>
 
 <li>It was not clear to me from the instructions what each element of this database pertains to. For the purposes of this exercise, I am assuming that an observation is a place (town, municipality, etc.), and that each income variable refers to an individual person - Essentially, I'm assuming that there are 30,000 places and 200 people per place.</li>
+
+<li> https://github.com/databrew/world_bank_poverty - put in href</li>
+
                      </ul>")
           )
                  ),
