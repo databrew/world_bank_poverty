@@ -1,3 +1,4 @@
+
 library(shiny)
 library(shinydashboard)
 library(dplyr)
@@ -421,7 +422,7 @@ server <- function(input, output) {
                alpha = 0.6) +
       scale_fill_manual(name = 'Inequality measure',
                         values = cols) +
-      # ggthemes::theme_fivethirtyeight() +
+      ggthemes::theme_fivethirtyeight() +
       labs(title = 'Gini and Theil coefficients for inequality',
            subtitle = 'Downsampled based on weights') +
       geom_label(aes(label = round(value, digits = 2)), 
