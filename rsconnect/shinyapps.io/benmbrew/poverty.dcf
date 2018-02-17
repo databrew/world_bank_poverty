@@ -5,8 +5,8 @@ account: benmbrew
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 282972
-bundleId: 1227150
+bundleId: 1227312
 url: https://benmbrew.shinyapps.io/poverty/
-when: 1518833650.53854
+when: 1518852782.63894
 asMultiple: FALSE
 asStatic: FALSE
