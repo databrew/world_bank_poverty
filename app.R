@@ -71,20 +71,20 @@ body <- dashboardBody(
     tabItem(
       tabName="assignment",
       fluidPage(
-        fluidRow(column(12,
+        fluidRow(column(6,
                         sliderInput('poverty_line',
                                     'Select a poverty line',
                                     min = 500,
                                     max = 5000,
                                     value = 3000,
                                     step = 500),
-                        textOutput('poverty_line_text'))),
-        fluidRow(column(12,
+                        textOutput('poverty_line_text')),
+                 column(6,
                         radioButtons('by_region',
                                      '',
                                      choices = c('Breakdown by region',
-                                                 'Combine all regions'),
-                                     inline = TRUE),
+                                                 'Combine all regions')))),
+        fluidRow(column(12,
                         tabsetPanel(type = 'tabs',
                                     
                                     tabPanel('Poverty headcount rate',
@@ -107,7 +107,9 @@ body <- dashboardBody(
                                              DT::dataTableOutput('data_tab')),
                                     tabPanel('Distribution of income',
                                              plotOutput('distributions'))
-                        )))
+                        )
+                        
+                        ))
       )
     ),
     tabItem(
@@ -726,8 +728,7 @@ server <- function(input, output) {
       table_data_phr <- 
         dfl %>%
         mutate(poor = as.numeric(value < poverty_line)) %>%
-        summarise(rate = weighted.mean(poor, w = weight) * 100) %>%
-        mutate(region = 'All regions')
+        summarise(rate = weighted.mean(poor, w = weight) * 100)
       
       ########## get poverty gap
       table_data_pg <- dfl
@@ -738,8 +739,7 @@ server <- function(input, output) {
                                   k = poverty_line,
                                   parameter = 2,
                                   type = 'Foster',
-                                  na.rm = TRUE)) %>%
-        mutate(region = 'All regions')
+                                  na.rm = TRUE)) 
       
       ######### get poverty gap squared
       table_data_pg_squared <- table_data_pg
@@ -757,8 +757,7 @@ server <- function(input, output) {
                               na.rm = TRUE),
                   theil = ineq(x = value,
                                type = 'Theil',
-                               na.rm = TRUE)) %>%
-        mutate(region = 'All regions')
+                               na.rm = TRUE)) 
       
       # combine all four into table 
       region <- 'All'
