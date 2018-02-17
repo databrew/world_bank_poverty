@@ -5,6 +5,7 @@ library(RColorBrewer)
 library(ggridges)
 
 source('global.R')
+source('functions.R')
 
 header <- dashboardHeader(title="Poverty explorer")
 sidebar <- dashboardSidebar(
@@ -40,22 +41,22 @@ body <- dashboardBody(
         h3('Welcome!'),
         fluidRow(
           column(12,
-                 HTML("Thank you for taking the time to look at the R Shiny app I created for the World Bank Programming Exercise. The code repository on github is available <a href=https://github.com/databrew/world_bank_poverty>here</a>. For the sake of time and general efficiency of the app, I took the liberty of making a few assumptions - and adjustments to the data - outlined below:
+                 HTML("Thank you for taking the time to look at the R Shiny app I have created for the World Bank Programming Exercise. The code repository on github is available <a href=https://github.com/databrew/world_bank_poverty>here</a>. For the sake of time and general efficiency of the app, I have taken the liberty of making a few assumptions and adjustments to the data as outlined below:
 
 <ul>
-  <li>I was formally trained in Economics and during both undergrand and graduate school I used Stata often for research. However, I do not have a license anymore and therefore did not include a Stata log file. But I was able to translate the stata code into an R program, and ultimately, accomplish the task.
+  <li>I was formally trained in Economics and I often used Stata for research during both undergrad and graduate school. However, I no longer have a license and therefore did not include a Stata log file. I was, nevertheless, able to translate the Stata code into an R program and ultimately accomplished the task.
   </li>
    
-  <li>There is an additional tab, 'Extra', that examines the poverty incidence curve, the contributions to inequality, and a map the headcount poverty ratio by province (overlayed on real provinces)
+  <li>There is an additional tab, 'Extra', that examines the poverty incidence curve, the contributions to inequality, and a map which shows the headcount poverty ratio by province (overlayed on real provinces).
   </li>
   
-  <li> For practical purposes, I transformed the data from 'wide format' to 'long format'. This way the number of columns and their names are independent of variables. 
+  <li> For practical purposes, I transformed the data from 'wide format' to 'long format'. This way the number of columns and their names are independent of the variables. 
   </li>
   
-  <li> Instead of analyzing the data at the different poverty lines {3000, 2000, 5500} (discrete), I created an input that allows the user to analyze all possible poverty lines, with corresponding plots and tables that react to the chosen input. In addition, the user can look at regions seperately or n aggregate. 
+  <li> Instead of analyzing the data at the different poverty lines {3000, 2000, 5500}, I created an input that allows the user to analyze many different poverty lines {0, 500, 1000, ... , 5500}, with corresponding plots and tables that react to the chosen input. In addition, the user can look at regions separately or in aggregate. 
   </li>
   
-  <li>It was not clear to me from the instructions what each element of this database pertains to. For the purposes of this exercise, I am assuming that an observation is a place (town, municipality, etc.), and that each income variable refers to an individual person - Essentially, I'm assuming that there are 30,000 places and 200 people per place.
+  <li>It was not clear to me from the instructions what each element of this database pertains to. For the purposes of this exercise, I am assuming that an observation is a place (town, municipality, etc.) and that each income variable refers to an individual person. In other words, I make the assumption that there are 30,000 places and 200 people per place.
   </li>
 </ul>")
           )
@@ -69,15 +70,15 @@ body <- dashboardBody(
     tabItem(
       tabName="assignment",
       fluidPage(
-        fluidRow(column(4,
+        fluidRow(column(12,
                         sliderInput('poverty_line',
                                     'Select a poverty line',
                                     min = 500,
                                     max = 5000,
                                     value = 3000,
                                     step = 500),
-                        textOutput('poverty_line_text')),
-                 column(8,
+                        textOutput('poverty_line_text'))),
+        fluidRow(column(12,
                         radioButtons('by_region',
                                      '',
                                      choices = c('Breakdown by region',
@@ -86,12 +87,24 @@ body <- dashboardBody(
                         tabsetPanel(type = 'tabs',
                                     
                                     tabPanel('Poverty headcount rate',
+                                             textOutput('phr_text'),
                                              plotOutput('phr')),
                                     tabPanel('Poverty gap',
+                                             textOutput('gap_text'),
                                              plotOutput('poverty_gap')),
                                     tabPanel('Squared poverty gap',
+                                             textOutput('gap_squared_text'),
                                              plotOutput('poverty_gap_squared')),
-                                    tabPanel('Distributions',
+                                    tabPanel('Gini and Theil',
+                                             textOutput('g_and_t_text'),
+                                             plotOutput('g_and_t')),
+                                    tabPanel('Lorenz curves',
+                                             textOutput('lorenz_text'),
+                                             plotOutput('lorenz')),
+                                    tabPanel('Table for all metrices',
+                                             textOutput('data_tab_text'),
+                                             DT::dataTableOutput('data_tab')),
+                                    tabPanel('Distribution of income',
                                              plotOutput('distributions'))
                         )))
       )
@@ -139,12 +152,6 @@ body <- dashboardBody(
                  style = 'text-align:center;'
                  )
           
-        ),
-        br(),br(),br(),
-        fluidRow(
-          column(12,
-                 HTML('<a href=https://databrew.cc> Ben Brew </a>')
-                 )
         )
       )
     )
@@ -162,6 +169,37 @@ server <- function(input, output) {
       paste0('You have selected a poverty line of ', input$poverty_line)
     })
   
+  output$phr_text <-
+    renderText({
+      "This is the proportion of the population that lives below the poverty line (Suresh D. Tendulkar and L. R. Jain)"
+    })
+  
+  output$gap_text <-
+    renderText({
+      "The poverty gap is the mean distance separating the population from the poverty line, with the non-poor being given a distance of zero. In other words, it is the measure of the 'intensity' of poverty."
+    })
+  
+  output$gap_squared_text <-
+    renderText({
+      "Squared Poverty Gap: Measure of the 'severity' of poverty. While the poverty gap takes into account the distance separating the poor from the poverty line, the squared poverty gap takes the square of that distance into account. When using the squared poverty gap, the poverty gap is weighted by itself, so as to give more weight to the very poor. Said differently, the squared poverty gap takes into account the inequality among the poor."
+    })
+  
+  output$g_and_t_text <-
+    renderText({
+      "The Gini coefficient is a measure of income distribution, with zero indicating perfect equality and 1 representing perfect inequality. An advantage of the Gini coefficient is that it can used conduct a direct comparison between two populations, regardless of the their sizes. However, a disadvantage is that the Gini coefficient cannot take into account the 'structure' of the inequality within a population. For example, two countries can have the same Gini coefficient but different inequalities, the same way that Lorenz cures can have the same area yet different shapes. The Theil coefficient, however, improves on the Gini coefficient because it aggregates inequality within and across each group."
+    })
+  
+  output$lorenz_text <-
+    renderText({
+      "the Lorenz curve, developed by Max O. Lorenz, shows the what percentage of income goes to the bottom x% of households"
+    })
+  
+  output$data_tab_text <-
+    renderText({
+      "The table below aggregates our different mectrics into one downloadable table."
+    })
+  
+
   output$phr <- renderPlot({
     
     if(input$by_region == 'Breakdown by region'){
@@ -205,10 +243,11 @@ server <- function(input, output) {
       scale_fill_manual(name = '',
                         values = cols) +
       theme(legend.position = 'none') +
-      geom_label(aes(label = round(rate, digits = 1),
+      geom_label(aes(label = round(rate, digits = 1), vjust = 1,
                      fill = NA))
     
   })
+  
   
   output$poverty_gap <- renderPlot({
     # POVERTY GAP
@@ -247,6 +286,8 @@ server <- function(input, output) {
         mutate(region = 'All regions')
     }
     
+    
+    
     cols <- colorRampPalette(brewer.pal(n = 8, 'Spectral'))(length(unique(plot_data$region)))
     
     ggplot(data = plot_data,
@@ -263,19 +304,13 @@ server <- function(input, output) {
       scale_fill_manual(name = '',
                         values = cols) +
       theme(legend.position = 'none') +
-      geom_label(aes(label = round(gap, digits = 3),
+      geom_label(aes(label = round(gap, digits = 3), vjust = 1,
                      fill = NA))
     
   })
   
   output$poverty_gap_squared<- renderPlot({
     # SQUARED POVERTY GAP
-    # Squared Poverty Gap: Measure of the severity of poverty. While the
-    # poverty gap takes into account the distance separating the poor from the poverty line, the
-    # squared poverty gap takes the square of that distance into account. When using the squared
-    # poverty gap, the poverty gap is weighted by itself, so as to give more weight to the very poor.
-    # Said differently, the squared poverty gap takes into account the inequality among the poor. 
-    
     
     poverty_line <- input$poverty_line
     if(input$by_region == 'Breakdown by region'){
@@ -328,12 +363,136 @@ server <- function(input, output) {
       scale_fill_manual(name = '',
                         values = cols) +
       theme(legend.position = 'none') +
-      geom_label(aes(label = round(gap, digits = 3),
+      geom_label(aes(label = round(gap, digits = 3), vjust = 1,
                      fill = NA))
     
     
   })
   
+  output$g_and_t <- renderPlot({
+    
+    poverty_line <- input$poverty_line
+    if(input$by_region == 'Breakdown by region'){
+      by_region <- TRUE
+    } else {
+      by_region <- FALSE
+    }
+    
+    # Downsample based on weights
+    plot_data <- dfl
+    plot_data <- sample_n(plot_data, size = 1000000, replace = TRUE,
+                          weight = weight)
+    
+    
+    # Get the gini coefficient
+    if(by_region){
+      out <- plot_data %>%
+        group_by(region = factor(region)) %>%
+        summarise(gini = ineq(x = value,
+                              type = 'Gini',
+                              na.rm = TRUE),
+                  theil = ineq(x = value,
+                                      type = 'Theil',
+                                      na.rm = TRUE)) %>%
+        gather(key, value, gini:theil)
+    } else {
+      out <- plot_data %>%
+        summarise(gini = ineq(x = value,
+                              type = 'Gini',
+                              na.rm = TRUE),
+                  theil = ineq(x = value,
+                               type = 'Theil',
+                               na.rm = TRUE)) %>%
+        gather(key, value, gini:theil) %>%
+        mutate(region = 'All regions')
+      
+    }
+   
+    cols <- colorRampPalette(brewer.pal(n = 8, 'Spectral'))(2)
+    
+     
+    ggplot(data = out,
+           aes(x = factor(region),
+               y = value,
+               group = key,
+               fill = key)) +
+      geom_bar(stat = 'identity',
+               position = 'dodge',
+               alpha = 0.6) +
+      scale_fill_manual(name = 'Inequality measure',
+                        values = cols) +
+      # ggthemes::theme_fivethirtyeight() +
+      labs(title = 'Gini and Theil coefficients for inequality',
+           subtitle = 'Downsampled based on weights') +
+      geom_label(aes(label = round(value, digits = 2)), 
+                 position = position_dodge(width = 1),
+                 vjust = 1,
+                 fill = NA)
+
+  })
+
+  output$lorenz <- renderPlot({
+    
+    poverty_line <- input$poverty_line
+    if(input$by_region == 'Breakdown by region'){
+      by_region <- TRUE
+    } else {
+      by_region <- FALSE
+    }
+    
+    # Downsample based on weights
+    plot_data <- dfl
+    plot_data <- sample_n(plot_data, size = 1000000, replace = TRUE,
+                          weight = weight)
+    
+    
+    # Get the gini coefficient
+    if(by_region){
+      regions_list <- list()
+      regions <- sort(unique(plot_data$region))
+      for(i in 1:length(regions)){
+        this_region <- regions[i]
+        sub_data <- plot_data %>% filter(region == this_region)
+        lc <- Lc(sub_data$value)
+        data <- data.frame(x = lc$p,
+                           y = lc$L,
+                           region = this_region)
+        regions_list[[i]] <- data
+      }
+      out <- bind_rows(regions_list)
+    } else {
+      lc <- Lc(plot_data$value)
+      out <- data.frame(x = lc$p,
+                         y = lc$L,
+                         region = 'All regions')
+    }
+    
+    cols <- colorRampPalette(brewer.pal(n = 8, 'Spectral'))(length(unique(out$region)))
+    
+    out <- out %>%
+      mutate(x = x * 100,
+             y = y * 100)
+    
+    
+    ggplot(data = out %>% mutate(region = paste0('Region ', region)),
+           aes(x = x,
+               y = y,
+               group = region,
+               color = region)) +
+      geom_line() +
+      geom_abline(intercept = 0, slope = 1, color="black", 
+                  linetype="dashed", alpha = 0.5) +
+      scale_color_manual(name = 'Region',
+                        values = cols) +
+      ggthemes::theme_fivethirtyeight() +
+      labs(title = 'Lorenz curves',
+           subtitle = 'Empirical ordinary: x% of the population have y% of the wealth') +
+      facet_wrap(~region) +
+      theme(legend.position = 'none')
+    
+  })
+  
+    
   output$distributions <- renderPlot({
     if(input$by_region == 'Breakdown by region'){
       by_region <- TRUE
@@ -499,6 +658,128 @@ server <- function(input, output) {
     
     
   })
+  
+  output$data_tab <- renderDataTable({
+    
+    if(input$by_region == 'Breakdown by region'){
+      by_region <- TRUE
+    } else {
+      by_region <- FALSE
+    }
+    
+    poverty_line <- input$poverty_line
+  
+    
+    if(by_region){
+      ##########
+      # get poverty head count rate
+      table_data_phr <- 
+        dfl %>%
+        mutate(poor = as.numeric(value < poverty_line)) %>%
+        group_by(region) %>%
+        summarise(rate = weighted.mean(poor, w = weight) * 100) %>%
+        ungroup %>%
+        arrange(region)
+      
+      ##########
+      # get poverty gap
+      # Downsample based on weights - probability of keeping should be based on weights.
+      table_data_pg <- dfl
+      table_data_pg <- sample_n(table_data_pg, size = 1000000, replace = TRUE,
+                               weight = weight)
+      table_data_pg <- table_data_pg %>%
+        group_by(region) %>%
+        summarise(gap = ineq::pov(x = value,
+                                  k = poverty_line,
+                                  parameter = 2,
+                                  type = 'Foster',
+                                  na.rm = TRUE)) %>%
+        mutate(region = factor(region))
+      
+      ######### get poverty gap squared
+      table_data_pg_squared <- table_data_pg
+      table_data_pg_squared$gap_squared  <- table_data_pg$gap
+      table_data_pg_squared$gap <- NULL
+      
+      ######### get gini and theill coef
+      table_data_gt <- dfl
+      table_data_gt <- sample_n(table_data_gt, size = 1000000, replace = TRUE,
+                               weight = weight)
+      
+      table_data_gt <- table_data_gt %>%
+        group_by(region = factor(region)) %>%
+        summarise(gini = ineq(x = value,
+                              type = 'Gini',
+                              na.rm = TRUE),
+                  theil = ineq(x = value,
+                               type = 'Theil',
+                               na.rm = TRUE)) 
+      
+      # combine all four into table 
+      table_data_full <- as.data.frame(cbind(table_data_phr, table_data_pg$gap, table_data_pg_squared$gap_squared, table_data_gt$gini, 
+                                                table_data_gt$theil))
+      colnames(table_data_full) <- c('Region','Poverty headcount rate', 'Poverty gap', 'Poverty gap squared', 
+                                    'Gini coef', 'Theil coef')
+    } else {
+      ########## get poverty head count rate
+      table_data_phr <- 
+        dfl %>%
+        mutate(poor = as.numeric(value < poverty_line)) %>%
+        summarise(rate = weighted.mean(poor, w = weight) * 100) %>%
+        mutate(region = 'All regions')
+      
+      ########## get poverty gap
+      table_data_pg <- dfl
+      table_data_pg <- sample_n(table_data_pg, size = 1000000, replace = TRUE,
+                               weight = weight)
+      table_data_pg <- table_data_pg %>%
+        summarise(gap = ineq::pov(x = value,
+                                  k = poverty_line,
+                                  parameter = 2,
+                                  type = 'Foster',
+                                  na.rm = TRUE)) %>%
+        mutate(region = 'All regions')
+      
+      ######### get poverty gap squared
+      table_data_pg_squared <- table_data_pg
+      table_data_pg_squared$gap_squared  <- table_data_pg$gap
+      table_data_pg_squared$gap <- NULL
+      
+      ######### get gini and theill coef
+      
+      table_data_gt <- dfl
+      table_data_gt <- sample_n(table_data_gt, size = 1000000, replace = TRUE,
+                               weight = weight)
+      table_data_gt <- table_data_gt %>%
+        summarise(gini = ineq(x = value,
+                              type = 'Gini',
+                              na.rm = TRUE),
+                  theil = ineq(x = value,
+                               type = 'Theil',
+                               na.rm = TRUE)) %>%
+        mutate(region = 'All regions')
+      
+      # combine all four into table 
+      region <- 'All'
+      table_data_full <- as.data.frame(cbind(region, table_data_phr, table_data_pg$gap, table_data_pg_squared$gap_squared, table_data_gt$gini, 
+                                            table_data_gt$theil))
+      colnames(table_data_full) <- c('Region','Poverty headcount rate', 'Poverty gap', 'Poverty gap squared',
+                                    'Gini coef', 'Theil coef')
+      
+      
+    }
+    
+    x <- prettify(table_data_full, 
+             download_options = TRUE)
+    
+    return(x)
+    
+    
+  })
+  
+  
+  
+  
 }
 
 shinyApp(ui, server)
